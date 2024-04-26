@@ -45,7 +45,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// At taahis point, the user is authenticated. You can set a cookie or a token for the user.
 
 	w.Write([]byte(tokenString))
 }
