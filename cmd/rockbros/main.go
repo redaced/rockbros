@@ -15,8 +15,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/home", middleware.AuthMiddleware(http.HandlerFunc(handlers.Hello)))
-	http.HandleFunc("/register", controllers.RegisterHandler)
-	http.HandleFunc("/login", controllers.LoginHandler)
-	http.ListenAndServe(":8080", nil)
+
+	http.Handle("/home", middleware.AuthMiddleware(enableCors(http.HandlerFunc(handlers.Hello))))
+	http.Handle("/register", enableCors(http.HandlerFunc(controllers.RegisterHandler)))
+	http.Handle("/login", enableCors(http.HandlerFunc(controllers.LoginHandler)))
+	http.Handle("/logout", middleware.AuthMiddleware(enableCors(http.HandlerFunc(controllers.LogoutHandler))))
+	http.ListenAndServe(":8000", nil)
+}
+
+func enableCors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		h.ServeHTTP(w, r)
+	})
 }

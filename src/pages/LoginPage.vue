@@ -33,21 +33,41 @@ export default {
         }
     },
     methods: {
-        submitForm() {
-            this.$refs.form.validate((valid) => {
+        async submitForm() {
+            this.$refs.form.validate(async (valid) => {
                 if (valid) {
-                    axios.post('http://localhost:8000/login', {
-                        username: this.form.username,
-                        password: this.form.password
-                    })
-                        .then(response => {
-                            console.log(response.data)
-                            // Handle the successful login here, e.g. by storing the returned token and redirecting to another page
+                    let data = JSON.stringify({
+                        "username": this.form.username,
+                        "password": this.form.password
+                    });
+                    let config = {
+                        method: 'get',
+                        url: 'http://127.0.0.1:8000/login',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: data
+                    };
+                    console.log(config)
+                    await axios.request(config)
+                        .then((response) => {
+                            console.log(JSON.stringify(response.data));
                         })
-                        .catch(error => {
-                            console.error(error)
-                            // Handle the failed login here, e.g. by showing an error message to the user
-                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                    // axios.get('http://192.168.1.122:8080/login', {
+                    //     username: this.form.username,
+                    //     password: this.form.password
+                    // })
+                    //     .then(response => {
+                    //         console.log(response.data)
+                    //         // Handle the successful login here, e.g. by storing the returned token and redirecting to another page
+                    //     })
+                    //     .catch(error => {
+                    //         console.error(error)
+                    //         // Handle the failed login here, e.g. by showing an error message to the user
+                    //     })
                 } else {
                     console.log('error submit!!')
                     return false

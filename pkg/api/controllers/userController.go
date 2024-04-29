@@ -48,3 +48,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(tokenString))
 }
+
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the session from the request
+	// session, err := store.Get(r, "session-name")
+	// if err != nil {
+	//     http.Error(w, err.Error(), http.StatusInternalServerError)
+	//     return
+	// }
+
+	// // Delete the session
+	// session.Options.MaxAge = -1
+
+	// err = session.Save(r, w)
+	// if err != nil {
+	//     http.Error(w, err.Error(), http.StatusInternalServerError)
+	//     return
+	// }
+
+	// // Redirect the user to the login page (or wherever you want)
+	// http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
