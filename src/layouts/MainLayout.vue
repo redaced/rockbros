@@ -1,14 +1,54 @@
 <template>
-    <div>
-        <header>
+    <div v-loading="isLoading">
+        <el-header>
             <router-link to="/">Home</router-link>
-            <router-link to="/login">Login</router-link>
-        </header>
+            <router-link v-if="!isLoggedIn" to="/login">Login</router-link>
+            <el-dropdown v-else trigger="click">
+                <span class="el-dropdown-link">
+                    User<i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu>
+                    <template #dropdown>
+                        <el-dropdown-item @click="logout">Logout</el-dropdown-item>
+                    </template>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-header>
         <main>
             <slot />
         </main>
         <footer>
-            asdfsadfs
+            Main hol
         </footer>
     </div>
 </template>
+
+<script>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+
+export default {
+    setup() {
+        const store = useStore()
+
+        // Use computed to create a reactive dependency on the Vuex state
+        const isLoggedIn = computed(() => store.state.isLoggedIn)
+
+        // Use ref to create a reactive reference for the loading state
+        const isLoading = ref(false)
+
+        // Use mapActions or dispatch to dispatch an action
+        const logout = async () => {
+            isLoading.value = true
+            await store.dispatch('logout')
+            isLoading.value = false
+        }
+
+        return {
+            isLoggedIn,
+            isLoading,
+            logout
+        }
+    }
+}
+</script>

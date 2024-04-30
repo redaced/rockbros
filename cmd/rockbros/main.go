@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	gohandlers "github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+
 	"github.com/redaced/rockbros/pkg/api/controllers"
 	"github.com/redaced/rockbros/pkg/api/handlers"
 	"github.com/redaced/rockbros/pkg/api/middleware"
@@ -11,23 +14,23 @@ import (
 )
 
 func main() {
+	r := mux.NewRouter()
+
+	r.HandleFunc("/register", controllers.RegisterHandler).Methods("POST")
+	r.HandleFunc("/login", controllers.LoginController).Methods("POST")
+
+	s := r.PathPrefix("/").Subrouter()
+	s.Use(middleware.AuthMiddleware)
+	s.HandleFunc("/home", handlers.Hello).Methods("GET")
+	s.HandleFunc("/logout", controllers.LogoutHandler).Methods("POST")
+
 	err := models.ConnectDB("root:password@/rockbros?parseTime=true")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	http.Handle("/home", middleware.AuthMiddleware(enableCors(http.HandlerFunc(handlers.Hello))))
-	http.Handle("/register", enableCors(http.HandlerFunc(controllers.RegisterHandler)))
-	http.Handle("/login", enableCors(http.HandlerFunc(controllers.LoginHandler)))
-	http.Handle("/logout", middleware.AuthMiddleware(enableCors(http.HandlerFunc(controllers.LogoutHandler))))
-	http.ListenAndServe(":8000", nil)
-}
+	// Apply the CORS middleware to your router with the default options
+	corsHandler := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:8080"}))(r)
 
-func enableCors(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		h.ServeHTTP(w, r)
-	})
+	http.ListenAndServe(":3000", corsHandler)
 }

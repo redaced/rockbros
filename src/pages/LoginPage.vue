@@ -13,66 +13,44 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
+import axios from '@/api'
+import router from '@/router'
 
 export default {
-    data() {
-        return {
-            form: {
-                username: '',
-                password: ''
-            },
-            rules: {
-                username: [
-                    { required: true, message: 'Please input your username', trigger: 'blur' }
-                ],
-                password: [
-                    { required: true, message: 'Please input your password', trigger: 'blur' }
-                ]
+    setup() {
+        const store = useStore()
+
+        const form = ref({
+            username: '',
+            password: ''
+        })
+
+        const submitForm = async () => {
+            let data = JSON.stringify({
+                "username": form.value.username,
+                "password": form.value.password
+            })
+
+            const response = await axios.post('/login', data)
+
+            if (response.data) {
+                // Use the store here
+                // For example, you can commit a mutation
+                store.commit('setLoggedIn', true)
+
+                // Navigate to another route after successful login
+                router.push('/')
+            } else {
+                console.log('error submit!!')
+                return false
             }
         }
-    },
-    methods: {
-        async submitForm() {
-            this.$refs.form.validate(async (valid) => {
-                if (valid) {
-                    let data = JSON.stringify({
-                        "username": this.form.username,
-                        "password": this.form.password
-                    });
-                    let config = {
-                        method: 'get',
-                        url: 'http://127.0.0.1:8000/login',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        data: data
-                    };
-                    console.log(config)
-                    await axios.request(config)
-                        .then((response) => {
-                            console.log(JSON.stringify(response.data));
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                        });
-                    // axios.get('http://192.168.1.122:8080/login', {
-                    //     username: this.form.username,
-                    //     password: this.form.password
-                    // })
-                    //     .then(response => {
-                    //         console.log(response.data)
-                    //         // Handle the successful login here, e.g. by storing the returned token and redirecting to another page
-                    //     })
-                    //     .catch(error => {
-                    //         console.error(error)
-                    //         // Handle the failed login here, e.g. by showing an error message to the user
-                    //     })
-                } else {
-                    console.log('error submit!!')
-                    return false
-                }
-            })
+
+        return {
+            form,
+            submitForm
         }
     }
 }

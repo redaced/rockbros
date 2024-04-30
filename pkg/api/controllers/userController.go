@@ -28,7 +28,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginController(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
