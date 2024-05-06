@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
