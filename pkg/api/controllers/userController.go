@@ -4,12 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/redaced/rockbros/pkg/database"
 	"github.com/redaced/rockbros/pkg/models"
+
+	"gorm.io/gorm"
 )
+
+// Define database client
+var db *gorm.DB = database.ConnectDB()
 
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Welcome to the home page!"))
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +29,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user, err := models.RegisterUser(creds.Username, creds.Password)
+	user, err := models.RegisterUser(db, creds.Username, creds.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -35,7 +45,7 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user, err := models.AuthenticateUser(creds.Username, creds.Password)
+	user, err := models.AuthenticateUser(db, creds.Username, creds.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

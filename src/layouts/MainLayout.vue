@@ -9,7 +9,7 @@
                 </span>
                 <el-dropdown-menu>
                     <template #dropdown>
-                        <el-dropdown-item @click="logout">Logout</el-dropdown-item>
+                        <!-- <el-dropdown-item @click="logout">Logout</el-dropdown-item> -->
                     </template>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -25,14 +25,16 @@
 
 <script>
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { useAuthStore } from '@/store/auth'
+
 
 export default {
     setup() {
-        const store = useStore()
+        const authStore = useAuthStore()
+
 
         // Use computed to create a reactive dependency on the Vuex state
-        const isLoggedIn = computed(() => store.state.isLoggedIn)
+        const isLoggedIn = computed(() => authStore.isLoggedIn)
 
         // Use ref to create a reactive reference for the loading state
         const isLoading = ref(false)
@@ -40,13 +42,14 @@ export default {
         // Use mapActions or dispatch to dispatch an action
         const logout = async () => {
             isLoading.value = true
-            await store.dispatch('logout')
+            await authStore.logout()
             isLoading.value = false
         }
 
         return {
             isLoggedIn,
             isLoading,
+            authStore,
             logout
         }
     }

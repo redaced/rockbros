@@ -1,5 +1,5 @@
 <template>
-    <el-form :model="form" ref="form" rules="rules">
+    <el-form :model="form" ref="form" :rules="rules">
         <el-form-item label="Username" prop="username">
             <el-input v-model="form.username" />
         </el-form-item>
@@ -14,20 +14,31 @@
 
 <script>
 import { ref } from 'vue'
-import { useStore } from 'vuex'
+import { useAuthStore } from '@/store/auth'
 import axios from '@/api'
 import router from '@/router'
 
 export default {
     setup() {
-        const store = useStore()
-
+        const authStore = useAuthStore()
         const form = ref({
             username: '',
             password: ''
         })
 
+        const rules = ref({
+            username: [
+                { required: true, message: 'Please input your username', trigger: 'blur' }
+            ],
+            password: [
+                { required: true, message: 'Please input your password', trigger: 'blur' }
+            ]
+        })
+
         const submitForm = async () => {
+            // const valid = await form.value.validate()
+            // if (!valid) return
+
             let data = JSON.stringify({
                 "username": form.value.username,
                 "password": form.value.password
@@ -36,9 +47,12 @@ export default {
             const response = await axios.post('/login', data)
 
             if (response.data) {
+                // Save the JWT to localStorage
+                localStorage.setItem('jwt', response.data)
+
                 // Use the store here
                 // For example, you can commit a mutation
-                store.commit('setLoggedIn', true)
+                authStore.login()
 
                 // Navigate to another route after successful login
                 router.push('/')
@@ -50,7 +64,9 @@ export default {
 
         return {
             form,
-            submitForm
+            rules,
+            submitForm,
+            authStore
         }
     }
 }

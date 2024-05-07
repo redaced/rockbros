@@ -1,14 +1,16 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedState from "pinia-plugin-persistedstate"
 import ElementPlus from 'element-plus'
 import 'element-plus/theme-chalk/index.css'
-import App from './App.vue'
-import store from '@/store'
 import router from '@/router'
-import '@/api'
+import App from '@/App.vue'
 
 const app = createApp(App)
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedState)
 
 app.use(ElementPlus)
 app.use(router)
-app.use(store)
+app.use(pinia)
 app.mount('#app')

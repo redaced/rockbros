@@ -1,7 +1,7 @@
 # backend
 cmd/pkg/**
 cmd/bin/**
-
+.env
 
 
 # frontend

@@ -1,15 +1,16 @@
 package models
 
 import (
+	"os"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/jinzhu/gorm"
-	"golang.org/x/crypto/bcrypt"
-)
+	"strconv"
 
-var DB *gorm.DB
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -17,16 +18,17 @@ type User struct {
 	Password string
 }
 
-var jwtKey = []byte("your_secret_key")
-
 func GenerateJWT(username string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-	tokenString, err := token.SignedString(jwtKey)
+	expire, err := strconv.Atoi(os.Getenv("JWT_TOKEN_EXPIRE"))
+	if err != nil {
+		return "", err
+	}
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(expire)).Unix()
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_TOKEN")))
 	if err != nil {
 		return "", err
 	}
@@ -37,7 +39,7 @@ func ParseJWT(tokenString string) (string, error) {
 	claims := &jwt.MapClaims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return os.Getenv("JWT_TOKEN"), nil
 	})
 
 	if err != nil {
@@ -51,32 +53,26 @@ func ParseJWT(tokenString string) (string, error) {
 
 	return "", err
 }
-func ConnectDB(dataSourceName string) error {
-	var err error
-	DB, err = gorm.Open("mysql", dataSourceName)
-	if err != nil {
-		return err
-	}
-	DB.AutoMigrate(&User{})
-	return nil
-}
-func GetUserByUsername(username string) (*User, error) {
+
+func GetUserByUsername(db *gorm.DB, username string) (*User, error) {
 	var user User
-	if err := DB.Where("username = ?", username).First(&user).Error; err != nil {
+	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
-func RegisterUser(username, password string) (*User, error) {
+func RegisterUser(db *gorm.DB, username, password string) (*User, error) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	user := User{Username: username, Password: string(hashedPassword)}
-	if err := DB.Create(&user).Error; err != nil {
+	if err := db.Create(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
-func AuthenticateUser(username, password string) (*User, error) {
-	user, err := GetUserByUsername(username)
+func AuthenticateUser(db *gorm.DB, username, password string) (*User, error) {
+
+	user, err := GetUserByUsername(db, username)
+
 	if err != nil {
 		return nil, err
 	}

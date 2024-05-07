@@ -2,20 +2,18 @@
     <div class="home">
         <h1 v-if="!isLoggedIn">Welcome to the Home Page! Guest</h1>
         <h1 v-else>Welcome to the Home Page! User</h1>
-        <!-- Add your content here -->
     </div>
 </template>
 
 
 <script>
-import { computed } from 'vue'
-import { useStore } from 'vuex'
+import { useAuthStore } from '@/store/auth'
 
 export default {
     setup() {
-        const store = useStore()
+        const authStore = useAuthStore()
 
-        const isLoggedIn = computed(() => store.state.isLoggedIn)
+        const isLoggedIn = authStore.isLoggedIn
 
         return {
             isLoggedIn

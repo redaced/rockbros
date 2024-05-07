@@ -11,9 +11,10 @@
     "axios": "^1.6.8",
     "core-js": "^3.37.0",
     "element-plus": "^2.7.2",
+    "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
     "vue": "^3.4.26",
-    "vue-router": "^4.3.2",
-    "vuex": "^4.1.0"
+    "vue-router": "^4.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
