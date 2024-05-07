@@ -2,17 +2,12 @@
     <div v-loading="isLoading">
         <el-header>
             <router-link to="/">Home</router-link>
-            <router-link v-if="!isLoggedIn" to="/login">Login</router-link>
-            <el-dropdown v-else trigger="click">
-                <span class="el-dropdown-link">
-                    User<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu>
-                    <template #dropdown>
-                        <!-- <el-dropdown-item @click="logout">Logout</el-dropdown-item> -->
-                    </template>
-                </el-dropdown-menu>
-            </el-dropdown>
+            <router-link v-if="!authStore.isLoggedIn" to="/login">Login</router-link>
+
+            <div v-else>
+                <p>{{ authStore.user.username }} </p>
+                <a @click="logout">Logout</a>
+            </div>
         </el-header>
         <main>
             <slot />
@@ -24,7 +19,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from '@/store/auth'
 
 
@@ -32,9 +27,6 @@ export default {
     setup() {
         const authStore = useAuthStore()
 
-
-        // Use computed to create a reactive dependency on the Vuex state
-        const isLoggedIn = computed(() => authStore.isLoggedIn)
 
         // Use ref to create a reactive reference for the loading state
         const isLoading = ref(false)
@@ -47,7 +39,6 @@ export default {
         }
 
         return {
-            isLoggedIn,
             isLoading,
             authStore,
             logout

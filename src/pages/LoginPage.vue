@@ -48,11 +48,11 @@ export default {
 
             if (response.data) {
                 // Save the JWT to localStorage
-                localStorage.setItem('jwt', response.data)
-
+                // localStorage.setItem('jwt', response.data)
+                console.log(response.data)
                 // Use the store here
                 // For example, you can commit a mutation
-                authStore.login()
+                authStore.login({ username: response.data.username, token: response.data.token })
 
                 // Navigate to another route after successful login
                 router.push('/')

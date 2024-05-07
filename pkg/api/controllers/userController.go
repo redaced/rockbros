@@ -55,27 +55,29 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	response := map[string]string{
+		"token":    tokenString,
+		"username": user.Username,
+		// add more user info here
+	}
 
-	w.Write([]byte(tokenString))
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(jsonResponse)
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the session from the request
-	// session, err := store.Get(r, "session-name")
-	// if err != nil {
-	//     http.Error(w, err.Error(), http.StatusInternalServerError)
-	//     return
-	// }
-
-	// // Delete the session
-	// session.Options.MaxAge = -1
-
-	// err = session.Save(r, w)
-	// if err != nil {
-	//     http.Error(w, err.Error(), http.StatusInternalServerError)
-	//     return
-	// }
-
-	// // Redirect the user to the login page (or wherever you want)
-	// http.Redirect(w, r, "/login", http.StatusSeeOther)
+	response := map[string]string{
+		"token": "",
+	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonResponse)
 }
